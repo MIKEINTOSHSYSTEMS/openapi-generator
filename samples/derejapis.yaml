@@ -1,0 +1,343 @@
+openapi: 3.0.3
+info:
+  title: Dereja M&E System API
+  version: 1.0.0
+  description: |
+    ## Complete API Specification
+    ### Critical Implementation Notes:
+    1. **API Key**: Must be sent exactly as provided - do not encode special characters ($)
+    2. **CORS**: For browser clients, use a proxy or configure these server headers:
+       ```http
+       Access-Control-Allow-Origin: *
+       Access-Control-Allow-Methods: GET, POST, OPTIONS
+       Access-Control-Allow-Headers: Content-Type
+       ```
+  contact:
+    email: support@dereja.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://mne.dereja.com/app/api/v1.php
+    description: Production server
+  - url: https://api-staging.dereja.com/v1
+    description: Staging server
+
+tags:
+  - name: Candidates
+    description: All candidate operations
+  - name: System
+    description: API health checks
+
+paths:
+  /:
+    get:
+      tags: [Candidates]
+      summary: List or view candidates
+      operationId: getCandidates
+      parameters:
+        - $ref: '#/components/parameters/table'
+        - $ref: '#/components/parameters/actionGet'
+        - $ref: '#/components/parameters/records'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/query'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/editId'
+        - $ref: '#/components/parameters/apiKey'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/CandidateListResponse'
+                  - $ref: '#/components/schemas/CandidateResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - apiKey: []
+
+    post:
+      tags: [Candidates]
+      summary: Create, update, or delete candidates
+      operationId: modifyCandidate
+      parameters:
+        - $ref: '#/components/parameters/table'
+        - $ref: '#/components/parameters/actionPost'
+        - $ref: '#/components/parameters/editId'
+        - $ref: '#/components/parameters/apiKey'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/CandidateUpdate'
+                - type: object
+                  properties:
+                    editid1:
+                      type: string
+                  required: [editid1]
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - $ref: '#/components/schemas/CandidateResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+      security:
+        - apiKey: []
+
+  /system/health:
+    get:
+      tags: [System]
+      summary: Health check
+      operationId: healthCheck
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "OK"
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: query
+      name: apikey
+      x-codegen-raw-value: true  # Prevents encoding of special chars
+      description: |
+        Send exactly as provided including $ signs.
+        Example: $2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S
+
+  parameters:
+    table:
+      name: table
+      in: query
+      required: true
+      schema:
+        type: string
+        enum: [candidates]
+      example: candidates
+
+    actionGet:
+      name: action
+      in: query
+      required: true
+      schema:
+        type: string
+        enum: [list, view]
+      example: list
+
+    actionPost:
+      name: action
+      in: query
+      required: true
+      schema:
+        type: string
+        enum: [insert, update, delete]
+      example: update
+
+    records:
+      name: records
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      example: 20
+
+    skip:
+      name: skip
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      example: 0
+
+    query:
+      name: q
+      in: query
+      schema:
+        type: string
+      example: "(Status~equals~Active)"
+
+    search:
+      name: qs
+      in: query
+      schema:
+        type: string
+      example: "search term"
+
+    editId:
+      name: editid1
+      in: query
+      schema:
+        type: string
+      example: "3"
+
+    apiKey:
+      name: apikey
+      in: query
+      required: true
+      schema:
+        type: string
+        format: password
+      example: $2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S
+      x-codegen-raw-value: true
+
+  schemas:
+    Candidate:
+      type: object
+      properties:
+        CandidateID:
+          type: string
+          example: "3"
+        Full_Name:
+          type: string
+          example: "Biruk Beriso Tuji"
+        Email_Address:
+          type: string
+          format: email
+          example: "biruk@example.com"
+        Phone_Number:
+          type: string
+          example: "926008412"
+
+    CandidateUpdate:
+      type: object
+      properties:
+        First_Name:
+          type: string
+          example: "Updated"
+        Email_Address:
+          type: string
+          format: email
+      required: [First_Name]
+
+    CandidateListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Candidate'
+
+    CandidateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/Candidate'
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Record updated"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Invalid parameters"
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            invalidParams:
+              value:
+                success: false
+                error: "Missing required parameters"
+
+    Unauthorized:
+      description: Invalid API key
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            invalidKey:
+              value:
+                success: false
+                error: "Invalid API key"
+
+x-code-samples:
+  - lang: curl
+    label: Create Candidate
+    source: |
+      curl -X POST "https://mne.dereja.com/app/api/v1.php?table=candidates&action=insert&apikey=\$2y\$10\$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S" \
+      -H "Content-Type: application/x-www-form-urlencoded" \
+      -d "First_Name=Biruk&Last_Name=Tuji&Email_Address=biruk@example.com"
+
+  - lang: python
+    label: Update Candidate
+    source: |
+      import requests
+      
+      params = {
+          "table": "candidates",
+          "action": "update",
+          "editid1": "3",
+          "apikey": "$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S"
+      }
+      
+      data = {"First_Name": "UpdatedName"}
+      
+      response = requests.post(
+          "https://mne.dereja.com/app/api/v1.php",
+          params=params,
+          data=data
+      )
+      print(response.json())
+
+  - lang: javascript
+    label: List Candidates (Browser)
+    source: |
+      // Using CORS proxy
+      const apiUrl = new URL('https://mne.dereja.com/app/api/v1.php');
+      apiUrl.searchParams.set('table', 'candidates');
+      apiUrl.searchParams.set('action', 'list');
+      apiUrl.searchParams.set('apikey', '$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S');
+      
+      fetch(`https://cors-anywhere.herokuapp.com/${apiUrl}`)
+        .then(response => response.json())
+        .then(data => console.log(data));
+
+externalDocs:
+  description: Dereja API Documentation
+  url: https://docs.dereja.com
