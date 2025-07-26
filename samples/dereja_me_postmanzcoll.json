@@ -1,0 +1,168 @@
+{
+  "info": {
+    "name": "Dereja M&E System API",
+    "description": "Postman collection for Dereja Monitoring & Evaluation System API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "List Candidates",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{base_url}}?table=candidates&action=list&records=20&skip=0&apikey={{api_key}}",
+          "host": ["{{base_url}}"],
+          "query": [
+            { "key": "table", "value": "candidates" },
+            { "key": "action", "value": "list" },
+            { "key": "records", "value": "20" },
+            { "key": "skip", "value": "0" },
+            { "key": "apikey", "value": "{{api_key}}" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "View Single Candidate",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{base_url}}?table=candidates&action=view&editid1=3&apikey={{api_key}}",
+          "host": ["{{base_url}}"],
+          "query": [
+            { "key": "table", "value": "candidates" },
+            { "key": "action", "value": "view" },
+            { "key": "editid1", "value": "3" },
+            { "key": "apikey", "value": "{{api_key}}" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create Candidate",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/x-www-form-urlencoded" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            { "key": "First_Name", "value": "Biruk" },
+            { "key": "Last_Name", "value": "Tuji" },
+            { "key": "Email_Address", "value": "biruk@example.com" },
+            { "key": "Sex", "value": "Male" },
+            { "key": "Region", "value": "Oromia" }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}?table=candidates&action=insert&apikey={{api_key}}",
+          "host": ["{{base_url}}"],
+          "query": [
+            { "key": "table", "value": "candidates" },
+            { "key": "action", "value": "insert" },
+            { "key": "apikey", "value": "{{api_key}}" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Candidate",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/x-www-form-urlencoded" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            { "key": "First_Name", "value": "UpdatedName" },
+            { "key": "Email_Address", "value": "updated@example.com" }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}?table=candidates&action=update&editid1=3&apikey={{api_key}}",
+          "host": ["{{base_url}}"],
+          "query": [
+            { "key": "table", "value": "candidates" },
+            { "key": "action", "value": "update" },
+            { "key": "editid1", "value": "3" },
+            { "key": "apikey", "value": "{{api_key}}" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete Candidate",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{base_url}}?table=candidates&action=delete&editid1=3&apikey={{api_key}}",
+          "host": ["{{base_url}}"],
+          "query": [
+            { "key": "table", "value": "candidates" },
+            { "key": "action", "value": "delete" },
+            { "key": "editid1", "value": "3" },
+            { "key": "apikey", "value": "{{api_key}}" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Search Candidates",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{base_url}}?table=candidates&action=list&q=(Status~equals~Active)&apikey={{api_key}}",
+          "host": ["{{base_url}}"],
+          "query": [
+            { "key": "table", "value": "candidates" },
+            { "key": "action", "value": "list" },
+            { "key": "q", "value": "(Status~equals~Active)" },
+            { "key": "apikey", "value": "{{api_key}}" }
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://mne.dereja.com/app/api/v1.php",
+      "description": "API base URL (e.g., https://mne.dereja.com/app/api/v1.php)"
+    },
+    {
+      "key": "api_key",
+      "value": "$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S",
+      "description": "Dereja API Key"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "value",
+        "value": "{{api_key}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "query"
+      }
+    ]
+  }
+}

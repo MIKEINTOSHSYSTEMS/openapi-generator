@@ -1,0 +1,504 @@
+openapi: 3.0.3
+info:
+  title: Dereja M&E System API
+  description: |
+    ## API Documentation
+    Complete API for Dereja Monitoring & Evaluation System
+    ### Code Examples
+    - [CURL](#section/CURL-Examples)
+    - [Python](#section/Python-Examples)
+    - [JavaScript](#section/JavaScript-Examples)
+    - [Java](#section/Java-Examples)
+    - [PHP](#section/PHP-Examples)
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@dereja.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://mne.dereja.com/app/api/v1.php
+    description: Production server
+  - url: https://staging.dereja.com/app/api/v1.php
+    description: Staging server
+
+tags:
+  - name: candidates
+    description: Operations with candidate records
+  - name: system
+    description: System operations
+
+paths:
+  /:
+    get:
+      tags: [candidates]
+      summary: Retrieve candidate records
+      operationId: getCandidates
+      parameters:
+        - $ref: '#/components/parameters/tableParam'
+        - $ref: '#/components/parameters/actionParamList'
+        - $ref: '#/components/parameters/recordsParam'
+        - $ref: '#/components/parameters/skipParam'
+        - $ref: '#/components/parameters/queryParam'
+        - $ref: '#/components/parameters/searchParam'
+        - $ref: '#/components/parameters/editIdParam'
+        - $ref: '#/components/parameters/apiKeyParam'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/CandidateListResponse'
+                  - $ref: '#/components/schemas/CandidateResponse'
+              examples:
+                listResponse:
+                  value:
+                    success: true
+                    data:
+                      - CandidateID: "3"
+                        Full_Name: "Biruk Beriso Tuji"
+                        Email_Address: "biruk@example.com"
+                singleResponse:
+                  value:
+                    success: true
+                    data:
+                      CandidateID: "3"
+                      Full_Name: "Biruk Beriso Tuji"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+        - apiKey: []
+      x-code-samples:
+        - lang: curl
+          source: |
+            curl -X GET "https://mne.dereja.com/app/api/v1.php?table=candidates&action=list&records=20&skip=0&apikey=\$2y\$10\$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S" \
+            -H "Accept: application/json"
+        - lang: python
+          source: |
+            import requests
+
+            url = "https://mne.dereja.com/app/api/v1.php"
+            params = {
+                "table": "candidates",
+                "action": "list",
+                "records": 20,
+                "skip": 0,
+                "apikey": "$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S"
+            }
+
+            response = requests.get(url, params=params)
+            print(response.json())
+        - lang: javascript
+          source: |
+            fetch('https://mne.dereja.com/app/api/v1.php?table=candidates&action=list&records=20&skip=0&apikey=$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S')
+              .then(response => response.json())
+              .then(data => console.log(data))
+              .catch(error => console.error('Error:', error));
+        - lang: java
+          source: |
+            import java.net.HttpURLConnection;
+            import java.net.URL;
+            import java.io.BufferedReader;
+            import java.io.InputStreamReader;
+
+            public class Main {
+                public static void main(String[] args) throws Exception {
+                    URL url = new URL("https://mne.dereja.com/app/api/v1.php?table=candidates&action=list&records=20&skip=0&apikey=$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S");
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setRequestProperty("Accept", "application/json");
+
+                    BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    String output;
+                    while ((output = in.readLine()) != null) {
+                        System.out.println(output);
+                    }
+                    in.close();
+                }
+            }
+        - lang: php
+          source: |
+            <?php
+            $url = 'https://mne.dereja.com/app/api/v1.php?table=candidates&action=list&records=20&skip=0&apikey=$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S';
+            $response = file_get_contents($url);
+            $data = json_decode($response, true);
+            print_r($data);
+            ?>
+
+    post:
+      tags: [candidates]
+      summary: Create, update, or delete candidate records
+      operationId: modifyCandidate
+      parameters:
+        - $ref: '#/components/parameters/tableParam'
+        - $ref: '#/components/parameters/actionParamModify'
+        - $ref: '#/components/parameters/editIdParam'
+        - $ref: '#/components/parameters/apiKeyParam'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/Candidate'
+                - type: object
+                  properties:
+                    editid1:
+                      type: string
+                  required:
+                    - editid1
+            examples:
+              createExample:
+                value:
+                  First_Name: "New"
+                  Last_Name: "Candidate"
+                  Email_Address: "new@example.com"
+              updateExample:
+                value:
+                  First_Name: "Updated"
+                  Email_Address: "updated@example.com"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - $ref: '#/components/schemas/CandidateResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security:
+        - apiKey: []
+      x-code-samples:
+        - lang: curl
+          source: |
+            # Create
+            curl -X POST "https://mne.dereja.com/app/api/v1.php?table=candidates&action=insert&apikey=\$2y\$10\$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "First_Name=New&Last_Name=Candidate&Email_Address=new@example.com"
+
+            # Update
+            curl -X POST "https://mne.dereja.com/app/api/v1.php?table=candidates&action=update&editid1=3&apikey=\$2y\$10\$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "First_Name=Updated&Email_Address=updated@example.com"
+
+            # Delete
+            curl -X POST "https://mne.dereja.com/app/api/v1.php?table=candidates&action=delete&editid1=3&apikey=\$2y\$10\$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S"
+        - lang: python
+          source: |
+            # Create
+            import requests
+            
+            url = "https://mne.dereja.com/app/api/v1.php"
+            params = {
+                "table": "candidates",
+                "action": "insert",
+                "apikey": "$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S"
+            }
+            data = {
+                "First_Name": "New",
+                "Last_Name": "Candidate",
+                "Email_Address": "new@example.com"
+            }
+            
+            response = requests.post(url, params=params, data=data)
+            print(response.json())
+        - lang: javascript
+          source: |
+            // Update
+            const params = new URLSearchParams();
+            params.append('First_Name', 'Updated');
+            params.append('Email_Address', 'updated@example.com');
+
+            fetch('https://mne.dereja.com/app/api/v1.php?table=candidates&action=update&editid1=3&apikey=$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: params
+            })
+            .then(response => response.json())
+            .then(data => console.log(data));
+        - lang: java
+          source: |
+            // Delete
+            import java.net.HttpURLConnection;
+            import java.net.URL;
+            import java.io.OutputStream;
+            
+            public class Main {
+                public static void main(String[] args) throws Exception {
+                    URL url = new URL("https://mne.dereja.com/app/api/v1.php?table=candidates&action=delete&editid1=3&apikey=$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S");
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    
+                    int responseCode = conn.getResponseCode();
+                    System.out.println("Response Code: " + responseCode);
+                }
+            }
+        - lang: php
+          source: |
+            <?php
+            // Create
+            $url = 'https://mne.dereja.com/app/api/v1.php?table=candidates&action=insert&apikey=$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S';
+            $data = [
+                'First_Name' => 'New',
+                'Last_Name' => 'Candidate',
+                'Email_Address' => 'new@example.com'
+            ];
+            
+            $options = [
+                'http' => [
+                    'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+                    'method'  => 'POST',
+                    'content' => http_build_query($data)
+                ]
+            ];
+            
+            $context  = stream_context_create($options);
+            $result = file_get_contents($url, false, $context);
+            print_r(json_decode($result, true));
+            ?>
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: query
+      name: apikey
+      description: API key for authentication
+  
+  parameters:
+    tableParam:
+      name: table
+      in: query
+      required: true
+      schema:
+        type: string
+        enum: [candidates]
+      example: candidates
+      description: Table to operate on
+    
+    actionParamList:
+      name: action
+      in: query
+      required: true
+      schema:
+        type: string
+        enum: [list, view]
+      example: list
+      description: Action to perform
+    
+    actionParamModify:
+      name: action
+      in: query
+      required: true
+      schema:
+        type: string
+        enum: [insert, update, delete]
+      example: update
+      description: Action to perform
+    
+    recordsParam:
+      name: records
+      in: query
+      schema:
+        type: integer
+        default: 20
+      example: 20
+      description: Number of records to return
+    
+    skipParam:
+      name: skip
+      in: query
+      schema:
+        type: integer
+        default: 0
+      example: 0
+      description: Number of records to skip
+    
+    queryParam:
+      name: q
+      in: query
+      schema:
+        type: string
+      example: "(Status~equals~Active)"
+      description: Query filter
+    
+    searchParam:
+      name: qs
+      in: query
+      schema:
+        type: string
+      example: "search term"
+      description: Text search
+    
+    editIdParam:
+      name: editid1
+      in: query
+      schema:
+        type: string
+      example: "3"
+      description: ID of record to modify
+    
+    apiKeyParam:
+      name: apikey
+      in: query
+      required: true
+      schema:
+        type: string
+      example: "$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S"
+      description: API key for authentication
+
+  schemas:
+    Candidate:
+      type: object
+      properties:
+        CandidateID:
+          type: string
+          example: "3"
+        Full_Name:
+          type: string
+          example: "Biruk Beriso Tuji"
+        First_Name:
+          type: string
+          example: "Biruk"
+        Last_Name:
+          type: string
+          example: "Tuji"
+        Email_Address:
+          type: string
+          example: "biruk@example.com"
+        Sex:
+          type: string
+          example: "Male"
+        Region:
+          type: string
+          example: "Oromia"
+    
+    CandidateListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Candidate'
+    
+    CandidateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/Candidate'
+    
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operation completed successfully"
+    
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Error description"
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Invalid parameters provided"
+    
+    Unauthorized:
+      description: Missing or invalid authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Authentication failed"
+    
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Internal server error"
+
+x-code-samples:
+  - lang: csharp
+    source: |
+      // C# Example
+      using System;
+      using System.Net.Http;
+      
+      class Program
+      {
+          static async Task Main(string[] args)
+          {
+              var client = new HttpClient();
+              var response = await client.GetAsync("https://mne.dereja.com/app/api/v1.php?table=candidates&action=list&apikey=$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S");
+              var content = await response.Content.ReadAsStringAsync();
+              Console.WriteLine(content);
+          }
+      }
+  - lang: go
+    source: |
+      // Go Example
+      package main
+
+      import (
+          "fmt"
+          "io/ioutil"
+          "net/http"
+      )
+
+      func main() {
+          resp, err := http.Get("https://mne.dereja.com/app/api/v1.php?table=candidates&action=list&apikey=$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S")
+          if err != nil {
+              panic(err)
+          }
+          defer resp.Body.Close()
+          
+          body, err := ioutil.ReadAll(resp.Body)
+          fmt.Println(string(body))
+      }
+
+externalDocs:
+  description: Dereja API Documentation
+  url: https://dereja.com/documentation
