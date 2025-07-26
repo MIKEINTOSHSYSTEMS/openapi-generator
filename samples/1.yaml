@@ -1,0 +1,541 @@
+openapi: 3.0.3
+info:
+  title: Dereja M&E System API
+  version: 1.0.0
+  description: API for interacting with Dereja Monitoring & Evaluation System
+servers:
+  - url: https://mne.dereja.com/app/api/v1.php
+security:
+  - apiKey: []
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: query
+      name: apikey
+  schemas:
+    Candidate:
+      type: object
+      properties:
+        CandidateID:
+          type: string
+          example: "3"
+        StudentID:
+          type: string
+          example: ""
+        Full_Name:
+          type: string
+          example: "Biruk Beriso Tuji"
+        First_Name:
+          type: string
+          example: "Biruk"
+        Middle_Name:
+          type: string
+          example: "Beriso"
+        Last_Name:
+          type: string
+          example: "Tuji"
+        Sex:
+          type: string
+          example: "Male"
+        DOB:
+          type: string
+          format: date
+          example: "1999-12-05"
+        Age:
+          type: string
+          example: "25"
+        Region:
+          type: string
+          example: "Oromia"
+        City:
+          type: string
+          example: "Adama"
+        Sub_City:
+          type: string
+          example: ""
+        Zone:
+          type: string
+          example: ""
+        Woreda:
+          type: string
+          example: ""
+        Kebele:
+          type: string
+          example: ""
+        House_No:
+          type: string
+          example: ""
+        Phone_Number:
+          type: string
+          example: "926008412"
+        Phone_Number_Alternate:
+          type: string
+          example: "944132844"
+        Email_Address:
+          type: string
+          example: "birukberiso82@gmail.com"
+        Disability_Status:
+          type: string
+          example: ""
+        Disability_Type:
+          type: string
+          example: ""
+        Disability_Type_Other:
+          type: string
+          example: ""
+        Institution_Type:
+          type: string
+          example: "University"
+        Institution_Name:
+          type: string
+          example: "Adama Science and Technology University"
+        Education_Level:
+          type: string
+          example: ""
+        Department:
+          type: string
+          example: ""
+        Minor:
+          type: string
+          example: ""
+        Major:
+          type: string
+          example: ""
+        Enrollement_Type:
+          type: string
+          example: ""
+        Skills:
+          type: string
+          example: ""
+        Languages:
+          type: string
+          example: "Amharic,Oromifa,English"
+        English_Proficiency_Level:
+          type: string
+          example: ""
+        Industry_Specific_Skills:
+          type: string
+          example: ""
+        IT_Related_Skills:
+          type: string
+          example: ""
+        Certifications:
+          type: string
+          example: ""
+        Year_of_graduation:
+          type: string
+          example: "2023/2015"
+        Field_Of_Study:
+          type: string
+          example: "Mechanical Engineering"
+        GPA:
+          type: string
+          example: "2.4"
+        Intervention:
+          type: string
+          example: ""
+        Campaign:
+          type: string
+          example: ""
+        Attend_Employability_Skill:
+          type: string
+          example: ""
+        DAAP_enrolled_1st Round:
+          type: string
+          example: "Yes"
+        DAAP_Completed:
+          type: string
+          example: ""
+        DAAP_Completed_Courses:
+          type: string
+          example: ""
+        Job_Fair_Clinic:
+          type: string
+          example: ""
+        Job_Fair:
+          type: string
+          example: "Yes"
+        Exit_Exam_Score:
+          type: string
+          example: "67"
+        Exit_Exam_Status:
+          type: string
+          example: "Pass"
+        DAAP_enrolled_2nd_Round:
+          type: string
+          example: ""
+        Upload_on_Tracker:
+          type: string
+          example: "Yes"
+        Upload_on_Website:
+          type: string
+          example: "No"
+        Work_Experience:
+          type: string
+          example: ""
+        Joined_Dereja_Services:
+          type: string
+          example: ""
+        Dereja_Services:
+          type: string
+          example: ""
+        Program_In_Dereja:
+          type: string
+          example: ""
+        Dereja_Training_Services:
+          type: string
+          example: ""
+        Training_Start_Date:
+          type: string
+          nullable: true
+          example: null
+        Training_End_Date:
+          type: string
+          nullable: true
+          example: null
+        Dereja_Event_Services:
+          type: string
+          example: "Job Fair"
+        Event_Start_Date:
+          type: string
+          nullable: true
+          example: null
+        Event_End_Date:
+          type: string
+          nullable: true
+          example: null
+        Event_Participant_Type:
+          type: string
+          example: "Candidate "
+        Dereja_web_profile_completion:
+          type: string
+          nullable: true
+          example: null
+        Dereja_Information_Source:
+          type: string
+          example: ""
+        Employment_Status:
+          type: string
+          example: "Self-employed"
+        Employment_Company:
+          type: string
+          example: ""
+        Employer_Sector:
+          type: string
+          example: ""
+        Employment_Position:
+          type: string
+          example: ""
+        Salary:
+          type: string
+          example: ""
+        Career_Level_Of_Payment:
+          type: string
+          example: ""
+        Placement_Type:
+          type: string
+          example: ""
+        Placement_Duration:
+          type: string
+          example: ""
+        Remark:
+          type: string
+          example: ""
+        candidate_data:
+          type: string
+          example: "CandidateID: 3, StudentID: , Full_Name: Biruk Beriso Tuji, Sex: Male, DOB: 1999-12-05, Age: 25, Region: Oromia, Phone_Number: 926008412, Email_Address: birukberiso82@gmail.com, Disability_Status: , Education_Level: , Dereja_Training_Services: , Dereja_Event_Services: Job Fair, Employment_Status: Self-employed, Date: "
+        Date:
+          type: string
+          nullable: true
+          example: null
+    CandidateListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Candidate'
+    CandidateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/Candidate'
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Record not found"
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operation completed successfully"
+paths:
+  /:
+    get:
+      summary: Retrieve candidate records
+      parameters:
+        - name: table
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [candidates]
+            example: candidates
+        - name: action
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [list, view]
+            example: list
+        - name: records
+          in: query
+          schema:
+            type: integer
+            default: 20
+            example: 1
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            default: 0
+            example: 2
+        - name: q
+          in: query
+          schema:
+            type: string
+            example: "(Status~equals~Active)"
+        - name: qs
+          in: query
+          schema:
+            type: string
+            example: "search keywords"
+        - name: editid1
+          in: query
+          schema:
+            type: string
+            example: "3"
+        - name: apikey
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/CandidateListResponse'
+                  - $ref: '#/components/schemas/CandidateResponse'
+              example:
+                success: true
+                data:
+                  - CandidateID: "3"
+                    StudentID: ""
+                    Full_Name: "Biruk Beriso Tuji"
+                    First_Name: "Biruk"
+                    Middle_Name: "Beriso"
+                    Last_Name: "Tuji"
+                    Sex: "Male"
+                    DOB: "1999-12-05"
+                    Age: "25"
+                    Region: "Oromia"
+                    City: "Adama"
+                    Sub_City: ""
+                    Zone: ""
+                    Woreda: ""
+                    Kebele: ""
+                    House_No: ""
+                    Phone_Number: "926008412"
+                    Phone_Number_Alternate: "944132844"
+                    Email_Address: "birukberiso82@gmail.com"
+                    Disability_Status: ""
+                    Disability_Type: ""
+                    Disability_Type_Other: ""
+                    Institution_Type: "University"
+                    Institution_Name: "Adama Science and Technology University"
+                    Education_Level: ""
+                    Department: ""
+                    Minor: ""
+                    Major: ""
+                    Enrollement_Type: ""
+                    Skills: ""
+                    Languages: "Amharic,Oromifa,English"
+                    English_Proficiency_Level: ""
+                    Industry_Specific_Skills: ""
+                    IT_Related_Skills: ""
+                    Certifications: ""
+                    Year_of_graduation: "2023/2015"
+                    Field_Of_Study: "Mechanical Engineering"
+                    GPA: "2.4"
+                    Intervention: ""
+                    Campaign: ""
+                    Attend_Employability_Skill: ""
+                    DAAP_enrolled_1st Round: "Yes"
+                    DAAP_Completed: ""
+                    DAAP_Completed_Courses: ""
+                    Job_Fair_Clinic: ""
+                    Job_Fair: "Yes"
+                    Exit_Exam_Score: "67"
+                    Exit_Exam_Status: "Pass"
+                    DAAP_enrolled_2nd_Round: ""
+                    Upload_on_Tracker: "Yes"
+                    Upload_on_Website: "No"
+                    Work_Experience: ""
+                    Joined_Dereja_Services: ""
+                    Dereja_Services: ""
+                    Program_In_Dereja: ""
+                    Dereja_Training_Services: ""
+                    Training_Start_Date: null
+                    Training_End_Date: null
+                    Dereja_Event_Services: "Job Fair"
+                    Event_Start_Date: null
+                    Event_End_Date: null
+                    Event_Participant_Type: "Candidate "
+                    Dereja_web_profile_completion: null
+                    Dereja_Information_Source: ""
+                    Employment_Status: "Self-employed"
+                    Employment_Company: ""
+                    Employer_Sector: ""
+                    Employment_Position: ""
+                    Salary: ""
+                    Career_Level_Of_Payment: ""
+                    Placement_Type: ""
+                    Placement_Duration: ""
+                    Remark: ""
+                    candidate_data: "CandidateID: 3, StudentID: , Full_Name: Biruk Beriso Tuji, Sex: Male, DOB: 1999-12-05, Age: 25, Region: Oromia, Phone_Number: 926008412, Email_Address: birukberiso82@gmail.com, Disability_Status: , Education_Level: , Dereja_Training_Services: , Dereja_Event_Services: Job Fair, Employment_Status: Self-employed, Date: "
+                    Date: null
+        '400':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create, update, or delete candidate records
+      parameters:
+        - name: table
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [candidates]
+            example: candidates
+        - name: action
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [insert, update, delete]
+            example: update
+        - name: editid1
+          in: query
+          schema:
+            type: string
+            example: "3"
+        - name: apikey
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/Candidate'
+                - type: object
+                  properties:
+                    editid1:
+                      type: string
+                  required:
+                    - editid1
+            example:
+              First_Name: "UpdatedFirstName"
+              Last_Name: "UpdatedLastName"
+              Email_Address: "updated@email.com"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - $ref: '#/components/schemas/CandidateResponse'
+              example:
+                success: true
+                data:
+                  CandidateID: "3"
+                  First_Name: "UpdatedFirstName"
+                  Last_Name: "UpdatedLastName"
+                  Email_Address: "updated@email.com"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
