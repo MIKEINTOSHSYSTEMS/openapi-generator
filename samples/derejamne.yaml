@@ -1,0 +1,427 @@
+openapi: 3.0.3
+info:
+  title: Dereja M&E System API
+  version: 1.0.0
+  description: API for interacting with Dereja Monitoring & Evaluation System
+servers:
+  - url: https://mne.dereja.com/app/api/v1.php
+security:
+  - apiKey: []
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: query
+      name: apikey
+  schemas:
+    Candidate:
+      type: object
+      properties:
+        CandidateID:
+          type: integer
+          format: int32
+          example: 1001
+        StudentID:
+          type: string
+          example: "STU2023-001"
+        First_Name:
+          type: string
+          example: "John"
+        Middle_Name:
+          type: string
+          example: "Robert"
+        Last_Name:
+          type: string
+          example: "Doe"
+        Sex:
+          type: string
+          example: "Male"
+        DOB:
+          type: string
+          format: date
+          example: "1995-05-15"
+        Region:
+          type: string
+          example: "Addis Ababa"
+        City:
+          type: string
+          example: "Addis Ababa"
+        Sub_City:
+          type: string
+          example: "Bole"
+        Zone:
+          type: string
+          example: "Zone 3"
+        Woreda:
+          type: string
+          example: "08"
+        Kebele:
+          type: string
+          example: "05"
+        House_No:
+          type: string
+          example: "H42"
+        Phone_Number:
+          type: string
+          example: "+251911223344"
+        Phone_Number_Alternate:
+          type: string
+          example: "+251922334455"
+        Email_Address:
+          type: string
+          example: "john.doe@example.com"
+        Disability_Status:
+          type: string
+          example: "No"
+        Disability_Type:
+          type: string
+          example: "None"
+        Disability_Type_Other:
+          type: string
+          example: ""
+        Institution_Type:
+          type: string
+          example: "University"
+        Institution_Name:
+          type: string
+          example: "Addis Ababa University"
+        Education_Level:
+          type: string
+          example: "Bachelor"
+        Department:
+          type: string
+          example: "Computer Science"
+        Minor:
+          type: string
+          example: "Mathematics"
+        Major:
+          type: string
+          example: "Artificial Intelligence"
+        Enrollement_Type:
+          type: string
+          example: "Full-time"
+        Skills:
+          type: string
+          example: "Project Management"
+        Languages:
+          type: string
+          example: "Amharic,English"
+        English_Proficiency_Level:
+          type: string
+          example: "Advanced"
+        Industry_Specific_Skills:
+          type: string
+          example: "CRM Software"
+        IT_Related_Skills:
+          type: string
+          example: "Python,SQL"
+        Certifications:
+          type: string
+          example: "AWS Certified"
+        Year_of_graduation:
+          type: string
+          example: "2022"
+        Field_Of_Study:
+          type: string
+          example: "Computer Science"
+        GPA:
+          type: number
+          format: float
+          example: 3.8
+        Intervention:
+          type: string
+          example: "Youth Employment"
+        Campaign:
+          type: string
+          example: "Q4-2023"
+        Attend_Employability_Skill:
+          type: string
+          example: "Yes"
+        DAAP_enrolled_1st_Round:
+          type: string
+          example: "Yes"
+        DAAP_Completed:
+          type: string
+          example: "Yes"
+        DAAP_Completed_Courses:
+          type: string
+          example: "Data Analysis,Soft Skills"
+        Job_Fair_Clinic:
+          type: string
+          example: "Attended"
+        Job_Fair:
+          type: string
+          example: "Q1-2024"
+        Exit_Exam_Score:
+          type: integer
+          example: 85
+        Exit_Exam_Status:
+          type: string
+          example: "Passed"
+        DAAP_enrolled_2nd_Round:
+          type: string
+          example: "No"
+        Upload_on_Tracker:
+          type: string
+          example: "Yes"
+        Upload_on_Website:
+          type: string
+          example: "Yes"
+        Work_Experience:
+          type: string
+          example: "2 years"
+        Joined_Dereja_Services:
+          type: string
+          example: "Yes"
+        Dereja_Services:
+          type: string
+          example: "Training,Job Matching"
+        Program_In_Dereja:
+          type: string
+          example: "Digital Skills"
+        Dereja_Training_Services:
+          type: string
+          example: "Completed"
+        Training_Start_Date:
+          type: string
+          format: date
+          example: "2023-01-10"
+        Training_End_Date:
+          type: string
+          format: date
+          example: "2023-03-15"
+        Dereja_Event_Services:
+          type: string
+          example: "Attended"
+        Event_Start_Date:
+          type: string
+          format: date
+          example: "2023-04-20"
+        Event_End_Date:
+          type: string
+          format: date
+          example: "2023-04-22"
+        Event_Participant_Type:
+          type: string
+          example: "Participant"
+        Dereja_web_profile_completion:
+          type: integer
+          example: 95
+        Dereja_Information_Source:
+          type: string
+          example: "Social Media"
+        Employment_Status:
+          type: string
+          example: "Employed"
+        Employment_Company:
+          type: string
+          example: "Tech Solutions PLC"
+        Employer_Sector:
+          type: string
+          example: "Private"
+        Employment_Position:
+          type: string
+          example: "Junior Developer"
+        Salary:
+          type: string
+          example: "15000"
+        Career_Level_Of_Payment:
+          type: string
+          example: "Entry Level"
+        Placement_Type:
+          type: string
+          example: "Permanent"
+        Placement_Duration:
+          type: string
+          example: "Full-time"
+        Remark:
+          type: string
+          example: "High potential candidate"
+        candidate_data:
+          type: string
+          example: "Additional JSON data"
+        Date:
+          type: string
+          format: date
+          example: "2023-05-01"
+      required:
+        - CandidateID
+    CandidateListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Candidate'
+    CandidateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/Candidate'
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Record not found"
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operation completed successfully"
+paths:
+  /:
+    get:
+      summary: Retrieve candidate records
+      parameters:
+        - name: table
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [candidates]
+        - name: action
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [list, view]
+        - name: records
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: q
+          in: query
+          schema:
+            type: string
+            example: "(Status~equals~Active)"
+        - name: qs
+          in: query
+          schema:
+            type: string
+            example: "search keywords"
+        - name: editid1
+          in: query
+          schema:
+            type: integer
+            example: 1001
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/CandidateListResponse'
+                  - $ref: '#/components/schemas/CandidateResponse'
+        '400':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create, update, or delete candidate records
+      parameters:
+        - name: table
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [candidates]
+        - name: action
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [insert, update, delete]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/Candidate'
+                - type: object
+                  properties:
+                    editid1:
+                      type: integer
+                      example: 1001
+                  required:
+                    - editid1
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - $ref: '#/components/schemas/CandidateResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'

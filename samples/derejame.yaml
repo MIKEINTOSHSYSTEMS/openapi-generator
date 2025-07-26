@@ -1,0 +1,351 @@
+openapi: 3.0.0
+servers:
+  - url: 'https://mne.dereja.com/app/api/v1.php'
+info:
+  description: API for interacting with Dereja Monitoring & Evaluation System
+  version: 1.0.0
+  title: Dereja M&E System API
+  license:
+    name: Apache-2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: candidates
+    description: Operations about candidates
+paths:
+  /:
+    get:
+      tags:
+        - candidates
+      summary: Retrieve candidate records
+      operationId: getCandidates
+      parameters:
+        - name: table
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [candidates]
+            example: candidates
+        - name: action
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [list, view]
+            example: list
+        - name: records
+          in: query
+          schema:
+            type: integer
+            default: 20
+            example: 1
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            default: 0
+            example: 2
+        - name: q
+          in: query
+          schema:
+            type: string
+            example: "(Status~equals~Active)"
+        - name: qs
+          in: query
+          schema:
+            type: string
+            example: "search keywords"
+        - name: editid1
+          in: query
+          schema:
+            type: string
+            example: "3"
+        - name: apikey
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/CandidateListResponse'
+                  - $ref: '#/components/schemas/CandidateResponse'
+              examples:
+                listResponse:
+                  value:
+                    success: true
+                    data:
+                      - CandidateID: "3"
+                        Full_Name: "Biruk Beriso Tuji"
+                        Sex: "Male"
+                        DOB: "1999-12-05"
+                        Age: "25"
+                        Region: "Oromia"
+                        Phone_Number: "926008412"
+                        Email_Address: "birukberiso82@gmail.com"
+                singleResponse:
+                  value:
+                    success: true
+                    data:
+                      CandidateID: "3"
+                      Full_Name: "Biruk Beriso Tuji"
+                      Sex: "Male"
+                      DOB: "1999-12-05"
+                      Age: "25"
+                      Region: "Oromia"
+                      Phone_Number: "926008412"
+                      Email_Address: "birukberiso82@gmail.com"
+        '400':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - apiKey: []
+    post:
+      tags:
+        - candidates
+      summary: Create, update, or delete candidate records
+      operationId: modifyCandidate
+      parameters:
+        - name: table
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [candidates]
+            example: candidates
+        - name: action
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [insert, update, delete]
+            example: update
+        - name: editid1
+          in: query
+          schema:
+            type: string
+            example: "3"
+        - name: apikey
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "$2y$10$N.Z80UdNWgVqnL0DB78FgOr0Tkp0j6Z5FhUQwB1.nKeSTEWxjVW4S"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/Candidate'
+                - type: object
+                  properties:
+                    editid1:
+                      type: string
+                  required:
+                    - editid1
+            examples:
+              updateExample:
+                value:
+                  First_Name: "UpdatedFirstName"
+                  Last_Name: "UpdatedLastName"
+                  Email_Address: "updated@email.com"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - $ref: '#/components/schemas/CandidateResponse'
+              example:
+                success: true
+                data:
+                  CandidateID: "3"
+                  First_Name: "UpdatedFirstName"
+                  Last_Name: "UpdatedLastName"
+                  Email_Address: "updated@email.com"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - apiKey: []
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: query
+      name: apikey
+  schemas:
+    Candidate:
+      type: object
+      properties:
+        CandidateID:
+          type: string
+          example: "3"
+        StudentID:
+          type: string
+          example: ""
+        Full_Name:
+          type: string
+          example: "Biruk Beriso Tuji"
+        First_Name:
+          type: string
+          example: "Biruk"
+        Middle_Name:
+          type: string
+          example: "Beriso"
+        Last_Name:
+          type: string
+          example: "Tuji"
+        Sex:
+          type: string
+          example: "Male"
+        DOB:
+          type: string
+          format: date
+          example: "1999-12-05"
+        Age:
+          type: string
+          example: "25"
+        Region:
+          type: string
+          example: "Oromia"
+        City:
+          type: string
+          example: "Adama"
+        Phone_Number:
+          type: string
+          example: "926008412"
+        Email_Address:
+          type: string
+          example: "birukberiso82@gmail.com"
+        Institution_Name:
+          type: string
+          example: "Adama Science and Technology University"
+        Field_Of_Study:
+          type: string
+          example: "Mechanical Engineering"
+        GPA:
+          type: string
+          example: "2.4"
+        DAAP_enrolled_1st_Round:
+          type: string
+          example: "Yes"
+        Job_Fair:
+          type: string
+          example: "Yes"
+        Exit_Exam_Score:
+          type: string
+          example: "67"
+        Exit_Exam_Status:
+          type: string
+          example: "Pass"
+        Upload_on_Tracker:
+          type: string
+          example: "Yes"
+        Upload_on_Website:
+          type: string
+          example: "No"
+        Dereja_Event_Services:
+          type: string
+          example: "Job Fair"
+        Event_Participant_Type:
+          type: string
+          example: "Candidate"
+        Employment_Status:
+          type: string
+          example: "Self-employed"
+        candidate_data:
+          type: string
+          example: "CandidateID: 3, StudentID: , Full_Name: Biruk Beriso Tuji, Sex: Male, DOB: 1999-12-05, Age: 25, Region: Oromia, Phone_Number: 926008412, Email_Address: birukberiso82@gmail.com"
+    CandidateListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Candidate'
+    CandidateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/Candidate'
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Record not found"
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operation completed successfully"

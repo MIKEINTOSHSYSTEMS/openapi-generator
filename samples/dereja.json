@@ -1,0 +1,943 @@
+openapi: 3.0.0
+info:
+  title: Dereja M&E System API
+  version: 1.0.0
+  description: API for interacting with the Dereja M&E System data tables.
+servers:
+  - url: https://mne.dereja.com/app/api/v1.php
+    description: Production Dereja M&E System API base URL
+security:
+  - ApiKeyAuth: [] # Refers to the security scheme defined below
+
+paths:
+  /:
+    get:
+      summary: Retrieve multiple records from a specified table
+      description: |
+        Retrieves multiple records from the specified `table`.
+        Supports pagination, advanced search (`q`), and full-text search (`qs`).
+      parameters:
+        - name: table
+          in: query
+          description: The name of the table to retrieve records from.
+          required: true
+          schema:
+            type: string
+            enum: [candidates] # Explicitly listing 'candidates' here
+        - name: action
+          in: query
+          description: The action to perform (must be 'list' for this operation).
+          required: true
+          schema:
+            type: string
+            enum: [list]
+        - name: apikey
+          in: query
+          description: Your API key for authentication.
+          required: true
+          schema:
+            type: string
+        - name: records
+          in: query
+          description: Number of records to return (default: 20).
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: skip
+          in: query
+          description: Number of records to skip (for pagination).
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: q
+          in: query
+          description: Advanced search filter (e.g., (Status~equals~Active)).
+          required: false
+          schema:
+            type: string
+        - name: qs
+          in: query
+          description: Full-text search query.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with a list of records.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  total:
+                    type: integer
+                    description: Total count of records matching the criteria.
+                    example: 150
+                  data:
+                    type: array
+                    items:
+                      # If 'table' is 'candidates', this would be a Candidate object
+                      $ref: '#/components/schemas/Candidate'
+                    example:
+                      - CandidateID: 101
+                        First_Name: "John"
+                        Last_Name: "Doe"
+                        Email_Address: "john.doe@example.com"
+                        Phone_Number: "251911123456"
+                        Sex: "Male"
+                      - CandidateID: 102
+                        First_Name: "Jane"
+                        Last_Name: "Smith"
+                        Email_Address: "jane.smith@example.com"
+                        Phone_Number: "251911987654"
+                        Sex: "Female"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    get: # This is a separate GET operation for 'view' action
+      summary: Retrieve a single record by ID
+      description: Retrieves a single record from the specified `table` by its `editid1`.
+      parameters:
+        - name: table
+          in: query
+          description: The name of the table to retrieve the record from.
+          required: true
+          schema:
+            type: string
+            enum: [candidates] # Explicitly listing 'candidates' here
+        - name: action
+          in: query
+          description: The action to perform (must be 'view' for this operation).
+          required: true
+          schema:
+            type: string
+            enum: [view]
+        - name: apikey
+          in: query
+          description: Your API key for authentication.
+          required: true
+          schema:
+            type: string
+        - name: editid1
+          in: query
+          description: ID of the record to view.
+          required: true
+          schema:
+            type: string # Given it can be integer/string, string is safer for OpenAPI
+      responses:
+        '200':
+          description: Successful response with a single record.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    # If 'table' is 'candidates', this would be a Candidate object
+                    $ref: '#/components/schemas/Candidate'
+                    example:
+                      CandidateID: 101
+                      First_Name: "John"
+                      Last_Name: "Doe"
+                      Email_Address: "john.doe@example.com"
+                      Phone_Number: "251911123456"
+                      Sex: "Male"
+                      DOB: "2000-01-15"
+                      Region: "Addis Ababa"
+                      City: "Addis Ababa"
+                      Education_Level: "BSc"
+                      Department: "Computer Science"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Perform insert, update, or delete operations on records
+      description: |
+        Performs `insert`, `update`, or `delete` operations on records in a specified `table`.
+        The required parameters in the request body vary based on the `action`.
+      parameters:
+        - name: table
+          in: query
+          description: The name of the table to perform the operation on.
+          required: true
+          schema:
+            type: string
+            enum: [candidates] # Explicitly listing 'candidates' here
+        - name: action
+          in: query
+          description: The action to perform (insert, update, or delete).
+          required: true
+          schema:
+            type: string
+            enum: [insert, update, delete]
+        - name: apikey
+          in: query
+          description: Your API key for authentication.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded: # PHPRunner often uses form-urlencoded for POST
+            schema:
+              type: object
+              properties:
+                action: # Explicitly list 'action' as part of the body for clarity
+                  type: string
+                  enum: [insert, update, delete]
+                  description: The specific action to perform.
+                editid1:
+                  type: string
+                  description: ID of the record to update or delete (required for 'update' and 'delete' actions).
+                # All other properties are dynamic field values.
+                # When action is 'insert' or 'update' for 'candidates' table, these would be CandidateInput fields.
+                # OpenAPI cannot strictly enforce this without a more complex structure (e.g., oneOf based on 'action')
+                # but this is a practical representation.
+              additionalProperties:
+                $ref: '#/components/schemas/CandidateInput' # Points to CandidateInput for additional fields
+              example: # Example for an 'insert' operation
+                action: "insert"
+                First_Name: "New"
+                Last_Name: "Candidate"
+                Email_Address: "new.candidate@example.com"
+                Phone_Number: "251911000000"
+                Sex: "Female"
+              example: # Example for an 'update' operation
+                action: "update"
+                editid1: "123"
+                Email_Address: "updated.email@example.com"
+                Phone_Number: "251911999999"
+              example: # Example for a 'delete' operation
+                action: "delete"
+                editid1: "456"
+
+          application/json: # Adding JSON as an alternative for POST requests
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum: [insert, update, delete]
+                  description: The specific action to perform.
+                editid1:
+                  type: string
+                  description: ID of the record to update or delete (required for 'update' and 'delete' actions).
+              additionalProperties:
+                $ref: '#/components/schemas/CandidateInput'
+              example: # Example for an 'insert' operation
+                action: "insert"
+                First_Name: "New"
+                Last_Name: "Candidate"
+                Email_Address: "new.candidate@example.com"
+                Phone_Number: "251911000000"
+                Sex: "Female"
+              example: # Example for an 'update' operation
+                action: "update"
+                editid1: "123"
+                Email_Address: "updated.email@example.com"
+                Phone_Number: "251911999999"
+              example: # Example for a 'delete' operation
+                action: "delete"
+                editid1: "456"
+
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object # Data could be the inserted/updated record, or a success message
+                    description: Response data, which could be the new record ID, success message, etc.
+                    example:
+                      message: "Record inserted successfully."
+                      CandidateID: 789 # Or similar ID if returned
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: query
+      name: apikey # Based on your example `apikey=your_api_key`
+      description: API Key required for authentication.
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Missing or invalid API key.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Insufficient permissions.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalServerError:
+      description: Server-side error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Error message describing the issue.
+          example: "Invalid request parameters: missing table name."
+
+    Candidate:
+      type: object
+      description: Represents a full candidate record from the Dereja M&E System.
+      properties:
+        CandidateID:
+          type: integer
+          format: int64
+          description: Identifier field for the candidate.
+          readOnly: true # Typically read-only, as it's an auto-incrementing primary key
+        StudentID:
+          type: string
+          maxLength: 200
+          nullable: true
+        First_Name:
+          type: string
+          maxLength: 200
+          nullable: true
+        Middle_Name:
+          type: string
+          maxLength: 200
+          nullable: true
+        Last_Name:
+          type: string
+          maxLength: 200
+          nullable: true
+        Sex:
+          type: string
+          maxLength: 10
+          nullable: true
+          enum: [Male, Female, Other] # Assuming common values
+        DOB:
+          type: string
+          format: date # YYYY-MM-DD
+          nullable: true
+        Region:
+          type: string
+          maxLength: 200
+          nullable: true
+        City:
+          type: string
+          maxLength: 200
+          nullable: true
+        Sub_City:
+          type: string
+          maxLength: 200
+          nullable: true
+        Zone:
+          type: string
+          maxLength: 200
+          nullable: true
+        Woreda:
+          type: string
+          maxLength: 20
+          nullable: true
+        Kebele:
+          type: string
+          maxLength: 20
+          nullable: true
+        House_No:
+          type: string
+          maxLength: 10
+          nullable: true
+        Phone_Number:
+          type: string
+          maxLength: 13
+          nullable: true
+          # format: ethiopian-phone # Custom format if you want to define it later
+          description: Unique phone number.
+        Phone_Number_Alternate:
+          type: string
+          maxLength: 13
+          nullable: true
+        Email_Address:
+          type: string
+          format: email
+          maxLength: 200
+          nullable: true
+          description: Unique email address.
+        Disability_Status:
+          type: string
+          maxLength: 10
+          nullable: true
+          enum: [Yes, No] # Assuming values
+        Disability_Type:
+          type: string
+          maxLength: 200
+          nullable: true
+        Disability_Type_Other:
+          type: string
+          maxLength: 200
+          nullable: true
+        Institution_Type:
+          type: string
+          maxLength: 20
+          nullable: true
+        Institution_Name:
+          type: string
+          maxLength: 200
+          nullable: true
+        Education_Level:
+          type: string
+          maxLength: 20
+          nullable: true
+          enum: [High School, Diploma, BSc, MSc, PhD] # Common values
+        Department:
+          type: string
+          maxLength: 20
+          nullable: true
+        Minor:
+          type: string
+          maxLength: 20
+          nullable: true
+        Major:
+          type: string
+          maxLength: 20
+          nullable: true
+        Enrollement_Type:
+          type: string
+          maxLength: 200
+          nullable: true
+        Skills:
+          type: string
+          maxLength: 100
+          nullable: true
+        Languages:
+          type: string
+          maxLength: 200
+          nullable: true
+        English_Proficiency_Level:
+          type: string
+          maxLength: 200
+          nullable: true
+          enum: [Beginner, Intermediate, Advanced, Native] # Assuming values
+        Industry_Specific_Skills:
+          type: string
+          maxLength: 200
+          nullable: true
+        IT_Related_Skills:
+          type: string
+          maxLength: 200
+          nullable: true
+        Certifications:
+          type: string
+          maxLength: 200
+          nullable: true
+        Year_of_graduation:
+          type: string # Often stored as a string if not a full date
+          maxLength: 20
+          nullable: true
+        Field_Of_Study:
+          type: string
+          maxLength: 200
+          nullable: true
+        GPA:
+          type: number
+          format: float
+          nullable: true
+        Intervention:
+          type: string
+          maxLength: 200
+          nullable: true
+        Campaign:
+          type: string
+          maxLength: 200
+          nullable: true
+        Attend_Employability_Skill:
+          type: string
+          maxLength: 200
+          nullable: true
+        DAAP_enrolled_1st_Round:
+          type: string
+          maxLength: 200
+          nullable: true
+        DAAP_Completed:
+          type: string
+          maxLength: 200
+          nullable: true
+        DAAP_Completed_Courses:
+          type: string
+          maxLength: 200
+          nullable: true
+        Job_Fair_Clinic:
+          type: string
+          maxLength: 200
+          nullable: true
+        Job_Fair:
+          type: string
+          maxLength: 200
+          nullable: true
+        Exit_Exam_Score:
+          type: integer
+          format: int64
+          nullable: true
+        Exit_Exam_Status:
+          type: string
+          maxLength: 200
+          nullable: true
+        DAAP_enrolled_2nd_Round:
+          type: string
+          maxLength: 200
+          nullable: true
+        Upload_on_Tracker:
+          type: string
+          maxLength: 200
+          nullable: true
+        Upload_on_Website:
+          type: string
+          maxLength: 200
+          nullable: true
+        Work_Experience:
+          type: string
+          maxLength: 200
+          nullable: true
+        Joined_Dereja_Services:
+          type: string
+          maxLength: 200
+          nullable: true
+        Dereja_Services:
+          type: string
+          maxLength: 200
+          nullable: true
+        Program_In_Dereja:
+          type: string
+          maxLength: 200
+          nullable: true
+        Dereja_Training_Services:
+          type: string
+          maxLength: 200
+          nullable: true
+        Training_Start_Date:
+          type: string
+          format: date
+          nullable: true
+        Training_End_Date:
+          type: string
+          format: date
+          nullable: true
+        Dereja_Event_Services:
+          type: string
+          maxLength: 200
+          nullable: true
+        Event_Start_Date:
+          type: string
+          format: date
+          nullable: true
+        Event_End_Date:
+          type: string
+          format: date
+          nullable: true
+        Event_Participant_Type:
+          type: string
+          maxLength: 200
+          nullable: true
+        Dereja_web_profile_completion:
+          type: integer
+          format: int64
+          nullable: true
+        Dereja_Information_Source:
+          type: string
+          maxLength: 20
+          nullable: true
+        Employment_Status:
+          type: string
+          maxLength: 200
+          nullable: true
+        Employment_Company:
+          type: string
+          maxLength: 200
+          nullable: true
+        Employer_Sector:
+          type: string
+          maxLength: 50
+          nullable: true
+        Employment_Position:
+          type: string
+          maxLength: 200
+          nullable: true
+        Salary:
+          type: string # Defined as varchar(10)
+          maxLength: 10
+          nullable: true
+        Career_Level_Of_Payment:
+          type: string
+          maxLength: 20
+          nullable: true
+        Placement_Type:
+          type: string
+          maxLength: 20
+          nullable: true
+        Placement_Duration:
+          type: string
+          maxLength: 20
+          nullable: true
+        Remark:
+          type: string
+          maxLength: 200
+          nullable: true
+        candidate_data:
+          type: string # mediumtext in SQL often maps to string in OpenAPI
+          nullable: true
+          description: Additional identifier field or serialized data.
+        Date:
+          type: string
+          format: date
+          nullable: true
+          readOnly: true # Often managed by the database, e.g., current_timestamp()
+
+    CandidateInput:
+      type: object
+      description: Schema for creating or updating a candidate record. Excludes read-only fields.
+      properties:
+        StudentID:
+          type: string
+          maxLength: 200
+          nullable: true
+        First_Name:
+          type: string
+          maxLength: 200
+          nullable: true
+        Middle_Name:
+          type: string
+          maxLength: 200
+          nullable: true
+        Last_Name:
+          type: string
+          maxLength: 200
+          nullable: true
+        Sex:
+          type: string
+          maxLength: 10
+          nullable: true
+          enum: [Male, Female, Other]
+        DOB:
+          type: string
+          format: date
+          nullable: true
+        Region:
+          type: string
+          maxLength: 200
+          nullable: true
+        City:
+          type: string
+          maxLength: 200
+          nullable: true
+        Sub_City:
+          type: string
+          maxLength: 200
+          nullable: true
+        Zone:
+          type: string
+          maxLength: 200
+          nullable: true
+        Woreda:
+          type: string
+          maxLength: 20
+          nullable: true
+        Kebele:
+          type: string
+          maxLength: 20
+          nullable: true
+        House_No:
+          type: string
+          maxLength: 10
+          nullable: true
+        Phone_Number:
+          type: string
+          maxLength: 13
+          nullable: true
+          description: Unique phone number.
+        Phone_Number_Alternate:
+          type: string
+          maxLength: 13
+          nullable: true
+        Email_Address:
+          type: string
+          format: email
+          maxLength: 200
+          nullable: true
+          description: Unique email address.
+        Disability_Status:
+          type: string
+          maxLength: 10
+          nullable: true
+          enum: [Yes, No]
+        Disability_Type:
+          type: string
+          maxLength: 200
+          nullable: true
+        Disability_Type_Other:
+          type: string
+          maxLength: 200
+          nullable: true
+        Institution_Type:
+          type: string
+          maxLength: 20
+          nullable: true
+        Institution_Name:
+          type: string
+          maxLength: 200
+          nullable: true
+        Education_Level:
+          type: string
+          maxLength: 20
+          nullable: true
+          enum: [High School, Diploma, BSc, MSc, PhD]
+        Department:
+          type: string
+          maxLength: 20
+          nullable: true
+        Minor:
+          type: string
+          maxLength: 20
+          nullable: true
+        Major:
+          type: string
+          maxLength: 20
+          nullable: true
+        Enrollement_Type:
+          type: string
+          maxLength: 200
+          nullable: true
+        Skills:
+          type: string
+          maxLength: 100
+          nullable: true
+        Languages:
+          type: string
+          maxLength: 200
+          nullable: true
+        English_Proficiency_Level:
+          type: string
+          maxLength: 200
+          nullable: true
+          enum: [Beginner, Intermediate, Advanced, Native]
+        Industry_Specific_Skills:
+          type: string
+          maxLength: 200
+          nullable: true
+        IT_Related_Skills:
+          type: string
+          maxLength: 200
+          nullable: true
+        Certifications:
+          type: string
+          maxLength: 200
+          nullable: true
+        Year_of_graduation:
+          type: string
+          maxLength: 20
+          nullable: true
+        Field_Of_Study:
+          type: string
+          maxLength: 200
+          nullable: true
+        GPA:
+          type: number
+          format: float
+          nullable: true
+        Intervention:
+          type: string
+          maxLength: 200
+          nullable: true
+        Campaign:
+          type: string
+          maxLength: 200
+          nullable: true
+        Attend_Employability_Skill:
+          type: string
+          maxLength: 200
+          nullable: true
+        DAAP_enrolled_1st_Round:
+          type: string
+          maxLength: 200
+          nullable: true
+        DAAP_Completed:
+          type: string
+          maxLength: 200
+          nullable: true
+        DAAP_Completed_Courses:
+          type: string
+          maxLength: 200
+          nullable: true
+        Job_Fair_Clinic:
+          type: string
+          maxLength: 200
+          nullable: true
+        Job_Fair:
+          type: string
+          maxLength: 200
+          nullable: true
+        Exit_Exam_Score:
+          type: integer
+          format: int64
+          nullable: true
+        Exit_Exam_Status:
+          type: string
+          maxLength: 200
+          nullable: true
+        DAAP_enrolled_2nd_Round:
+          type: string
+          maxLength: 200
+          nullable: true
+        Upload_on_Tracker:
+          type: string
+          maxLength: 200
+          nullable: true
+        Upload_on_Website:
+          type: string
+          maxLength: 200
+          nullable: true
+        Work_Experience:
+          type: string
+          maxLength: 200
+          nullable: true
+        Joined_Dereja_Services:
+          type: string
+          maxLength: 200
+          nullable: true
+        Dereja_Services:
+          type: string
+          maxLength: 200
+          nullable: true
+        Program_In_Dereja:
+          type: string
+          maxLength: 200
+          nullable: true
+        Dereja_Training_Services:
+          type: string
+          maxLength: 200
+          nullable: true
+        Training_Start_Date:
+          type: string
+          format: date
+          nullable: true
+        Training_End_Date:
+          type: string
+          format: date
+          nullable: true
+        Dereja_Event_Services:
+          type: string
+          maxLength: 200
+          nullable: true
+        Event_Start_Date:
+          type: string
+          format: date
+          nullable: true
+        Event_End_Date:
+          type: string
+          format: date
+          nullable: true
+        Event_Participant_Type:
+          type: string
+          maxLength: 200
+          nullable: true
+        Dereja_web_profile_completion:
+          type: integer
+          format: int64
+          nullable: true
+        Dereja_Information_Source:
+          type: string
+          maxLength: 20
+          nullable: true
+        Employment_Status:
+          type: string
+          maxLength: 200
+          nullable: true
+        Employment_Company:
+          type: string
+          maxLength: 200
+          nullable: true
+        Employer_Sector:
+          type: string
+          maxLength: 50
+          nullable: true
+        Employment_Position:
+          type: string
+          maxLength: 200
+          nullable: true
+        Salary:
+          type: string
+          maxLength: 10
+          nullable: true
+        Career_Level_Of_Payment:
+          type: string
+          maxLength: 20
+          nullable: true
+        Placement_Type:
+          type: string
+          maxLength: 20
+          nullable: true
+        Placement_Duration:
+          type: string
+          maxLength: 20
+          nullable: true
+        Remark:
+          type: string
+          maxLength: 200
+          nullable: true
+        candidate_data:
+          type: string
+          nullable: true
+          description: Additional identifier field or serialized data.

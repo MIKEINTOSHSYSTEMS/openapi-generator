@@ -1,0 +1,312 @@
+openapi: 3.0.0
+info:
+  title: Dereja M&E System API
+  version: 1.0.0
+  description: API for interacting with the Dereja M&E System data tables.
+servers:
+  - url: https://mne.dereja.com/app/api/v1.php
+    description: Production Dereja M&E System API base URL
+security:
+  - ApiKeyAuth: [] # Refers to the security scheme defined below
+
+paths:
+  /:
+    get:
+      summary: Retrieve multiple records from a specified table
+      description: |
+        Retrieves multiple records from the specified `table`.
+        Supports pagination, advanced search (`q`), and full-text search (`qs`).
+      parameters:
+        - name: table
+          in: query
+          description: The name of the table to retrieve records from.
+          required: true
+          schema:
+            type: string
+            # You might add an enum here if you have a fixed list of tables (e.g., candidates, users, events)
+            # enum: [candidates, users, events, ...]
+        - name: action
+          in: query
+          description: The action to perform (must be 'list' for this operation).
+          required: true
+          schema:
+            type: string
+            enum: [list]
+        - name: apikey
+          in: query
+          description: Your API key for authentication.
+          required: true
+          schema:
+            type: string
+        - name: records
+          in: query
+          description: Number of records to return (default: 20).
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: skip
+          in: query
+          description: Number of records to skip (for pagination).
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: q
+          in: query
+          description: Advanced search filter (e.g., (Status~equals~Active)).
+          required: false
+          schema:
+            type: string
+        - name: qs
+          in: query
+          description: Full-text search query.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with a list of records.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object # Data structure depends on the table, use a generic object
+                      description: A record from the specified table.
+                      # You could define specific schemas for each table (e.g., #/components/schemas/Candidate)
+                      # and use a oneOf or anyOf here if you knew all possible table structures.
+                      # For a generic API, a simple object is appropriate.
+                    example:
+                      - id: 1
+                        name: "Sample Data 1"
+                        status: "Active"
+                      - id: 2
+                        name: "Sample Data 2"
+                        status: "Inactive"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    get: # This is a separate GET operation for 'view' action
+      summary: Retrieve a single record by ID
+      description: Retrieves a single record from the specified `table` by its `editid1`.
+      parameters:
+        - name: table
+          in: query
+          description: The name of the table to retrieve the record from.
+          required: true
+          schema:
+            type: string
+        - name: action
+          in: query
+          description: The action to perform (must be 'view' for this operation).
+          required: true
+          schema:
+            type: string
+            enum: [view]
+        - name: apikey
+          in: query
+          description: Your API key for authentication.
+          required: true
+          schema:
+            type: string
+        - name: editid1
+          in: query
+          description: ID of the record to view.
+          required: true
+          schema:
+            type: string # Given it can be integer/string, string is safer for OpenAPI
+      responses:
+        '200':
+          description: Successful response with a single record.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object # Data structure depends on the table, use a generic object
+                    description: The single record retrieved.
+                    example:
+                      id: 101
+                      name: "John Doe"
+                      email: "john.doe@example.com"
+                      status: "Active"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Perform insert, update, or delete operations on records
+      description: |
+        Performs `insert`, `update`, or `delete` operations on records in a specified `table`.
+        The required parameters in the request body vary based on the `action`.
+      parameters:
+        - name: table
+          in: query
+          description: The name of the table to perform the operation on.
+          required: true
+          schema:
+            type: string
+        - name: action
+          in: query
+          description: The action to perform (insert, update, or delete).
+          required: true
+          schema:
+            type: string
+            enum: [insert, update, delete]
+        - name: apikey
+          in: query
+          description: Your API key for authentication.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded: # PHPRunner often uses form-urlencoded for POST
+            schema:
+              type: object
+              properties:
+                editid1:
+                  type: string
+                  description: ID of the record to update or delete (required for 'update' and 'delete' actions).
+                # Dynamic field values for insert/update go here.
+                # Since these are dynamic, we'll represent them as an open-ended object.
+                # In a real scenario, you'd define specific schemas for each table's insert/update.
+              # This indicates that other properties (your field names) are allowed
+              # and their types are not strictly defined here, as they depend on the table.
+              additionalProperties: true
+              example: # Example for an 'insert' operation
+                action: insert
+                name: "New Candidate"
+                email: "new.candidate@example.com"
+                # ... other fields
+              example: # Example for an 'update' operation
+                action: update
+                editid1: "123"
+                status: "Approved"
+                # ... other fields to update
+              example: # Example for a 'delete' operation
+                action: delete
+                editid1: "456"
+
+          application/json: # While documentation implies form-urlencoded for POST, JSON is common for APIs
+            schema:
+              type: object
+              properties:
+                editid1:
+                  type: string
+                  description: ID of the record to update or delete (required for 'update' and 'delete' actions).
+              additionalProperties: true
+              example: # Example for an 'insert' operation
+                action: insert
+                name: "New Candidate"
+                email: "new.candidate@example.com"
+                # ... other fields
+              example: # Example for an 'update' operation
+                action: update
+                editid1: "123"
+                status: "Approved"
+                # ... other fields to update
+              example: # Example for a 'delete' operation
+                action: delete
+                editid1: "456"
+
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object # Data could be the inserted/updated record, or a success message
+                    description: Response data, which could be the new record ID, success message, etc.
+                    example:
+                      message: "Record inserted successfully."
+                      id: 789
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: query
+      name: apikey # Based on your example `apikey=your_api_key`
+      description: API Key required for authentication.
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Missing or invalid API key.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Insufficient permissions.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalServerError:
+      description: Server-side error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Error message describing the issue.
+          example: "Invalid request parameters: missing table name."
